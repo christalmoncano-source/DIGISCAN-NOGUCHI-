@@ -1,0 +1,211 @@
+/* student.css - Clean, Student-focused Styles */
+.dash-wrap {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    min-height: 100vh;
+}
+
+.cat-content {
+    background: #f8fafc;
+    padding: 3rem;
+}
+
+.sb-main {
+    padding: 3rem;
+    background: #f8fafc;
+}
+
+.sb-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.category-browse {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+}
+
+.category-btn {
+    white-space: nowrap;
+    padding: 0.8rem 1.5rem;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 50px;
+    text-decoration: none;
+    color: var(--text-color);
+    font-weight: 600;
+    font-size: 1rem;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.category-btn:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.category-btn.active {
+    background: var(--primary-gradient);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+}
+
+.search-panel {
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    margin-bottom: 3rem;
+}
+
+.filter-grid {
+    display: grid;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.filter-grid-row2 {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #f1f5f9;
+}
+
+.sort-btn {
+    background: transparent;
+    border: 1px solid #e2e8f0;
+    padding: 0.5rem 1.2rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.sort-btn:hover {
+    background: #f1f5f9;
+}
+
+.active-sort {
+    background: #eef2ff !important;
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.results-bar {
+    margin-bottom: 2rem;
+}
+
+.results-badge {
+    background: #f1f5f9;
+    padding: 0.5rem 1.25rem;
+    border-radius: 50px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+.active-tag {
+    background: #e0e7ff;
+    color: var(--primary-color);
+    padding: 0.5rem 1.25rem;
+    border-radius: 50px;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 4rem;
+}
+
+.pagination a {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--text-color);
+    font-weight: 700;
+    transition: 0.2s;
+}
+
+.current-page {
+    background: var(--primary-gradient) !important;
+    color: white !important;
+    border-color: transparent !important;
+}
+
+/* Autocomplete Bar */
+.ac-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--shadow-lg);
+    z-index: 1000;
+    margin-top: 10px;
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #e2e8f0;
+}
+
+.ac-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    text-decoration: none;
+    color: var(--text-color);
+    border-bottom: 1px solid #f1f5f9;
+    transition: 0.2s;
+}
+
+.ac-item:hover { background: #f8fafc; }
+.ac-item img { width: 40px; height: 55px; object-fit: cover; border-radius: 4px; }
+.ac-info .ac-title { font-weight: 700; font-size: 0.95rem; }
+.ac-info .ac-sub { font-size: 0.8rem; color: var(--text-light); }
+
+/* Responsive Adjustments */
+@media (max-width: 992px) {
+    .dash-wrap {
+        grid-template-columns: 1fr;
+    }
+    .profile-grid {
+        grid-template-columns: 1fr;
+    }
+    .sb-main, .cat-content {
+        padding: 1.5rem;
+    }
+}
+@media (max-width: 768px) {
+    .filter-grid-row2 {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .sort-btn {
+        width: 100%;
+    }
+    .category-browse {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        justify-content: flex-start;
+    }
+}

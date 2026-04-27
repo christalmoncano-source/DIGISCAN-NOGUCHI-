@@ -11,6 +11,20 @@ function sendNotification($conn, $user_id, $title, $message, $type = 'info') {
 }
 
 /**
+ * Notify all administrative accounts
+ */
+function notifyAdmins($conn, $title, $message, $type = 'info') {
+    $admins = $conn->query("SELECT id FROM users WHERE role = 'admin'");
+    $success = true;
+    while ($admin = $admins->fetch_assoc()) {
+        if (!sendNotification($conn, $admin['id'], $title, $message, $type)) {
+            $success = false;
+        }
+    }
+    return $success;
+}
+
+/**
  * Sophisticated check for due dates and overdue assets.
  * Optimized for both automated cron jobs and manual triggers.
  */

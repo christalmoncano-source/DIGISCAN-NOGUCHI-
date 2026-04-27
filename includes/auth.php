@@ -25,7 +25,7 @@ function checkAccess($allowed_roles) {
 /**
  * Render Modern Header
  */
-function renderHeader($page_title = "DigiScan") {
+function renderHeader($page_title = "Noguchi Library") {
     $current_dir = dirname($_SERVER['PHP_SELF']);
     $base_path = (strpos($current_dir, 'admin') !== false || strpos($current_dir, 'registration') !== false || strpos($current_dir, 'student') !== false) ? '../' : './';
     ?>
@@ -43,7 +43,8 @@ function renderHeader($page_title = "DigiScan") {
     <nav class="navbar">
         <div class="nav-container">
             <a href="<?php echo $base_path; ?>index.php" class="logo">
-                <i class="fas fa-book-open" style="margin-right: 10px;"></i> DigiScan
+                <img src="<?php echo $base_path; ?>assets/img/library-logo.png" alt="Logo" style="width: 35px; margin-right: 12px; object-fit: contain;">
+                Noguchi Library
             </a>
             <div class="nav-toggle" id="mobile-menu">
                 <span class="bar"></span>
@@ -51,7 +52,7 @@ function renderHeader($page_title = "DigiScan") {
                 <span class="bar"></span>
             </div>
             <ul class="nav-menu">
-                <li><a href="<?php echo $base_path; ?>index.php#home" class="nav-link">Home</a></li>
+                <li><a href="<?php echo $base_path; ?>index.php" class="nav-link">Home</a></li>
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <li>
                         <a href="<?php echo ($_SESSION['role'] === 'admin') ? $base_path.'admin/dashboard.php' : $base_path.'student/dashboard.php'; ?>" class="nav-link">
@@ -59,21 +60,42 @@ function renderHeader($page_title = "DigiScan") {
                         </a>
                     </li>
                     <li style="margin-left: 1rem;">
-                        <a href="<?php echo $base_path; ?>student/profile.php" style="text-decoration: none;">
-                            <span class="user-pill">
+                        <a href="<?php echo $base_path; ?>student/profile.php" class="user-pill-link">
+                            <span class="user-pill-light">
                                 <i class="fas fa-user-circle"></i> <?php echo htmlspecialchars($_SESSION['full_name']); ?>
                             </span>
                         </a>
                     </li>
-                    <li><a href="<?php echo $base_path; ?>registration/logout.php" class="nav-link nav-btn logout-btn">Logout</a></li>
+                    <li><a href="<?php echo $base_path; ?>registration/logout.php" class="logout-btn-red">Logout</a></li>
                 <?php else: ?>
-                    <li><a href="<?php echo $base_path; ?>index.php#about" class="nav-link">About</a></li>
                     <li><a href="<?php echo $base_path; ?>registration/login.php" class="nav-link">Login</a></li>
                     <li><a href="<?php echo $base_path; ?>registration/register.php" class="nav-link nav-btn">Register</a></li>
                 <?php endif; ?>
             </ul>
         </div>
     </nav>
+    <main>
+    <?php
+}
+
+/**
+ * Render Modern Header without Navigation Bar
+ */
+function renderHeaderNoNav($page_title = "Noguchi Library") {
+    $current_dir = dirname($_SERVER['PHP_SELF']);
+    $base_path = (strpos($current_dir, 'admin') !== false || strpos($current_dir, 'registration') !== false || strpos($current_dir, 'student') !== false) ? '../' : './';
+    ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo htmlspecialchars($page_title); ?></title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="<?php echo $base_path; ?>assets/css/style.css">
+</head>
+<body class="no-nav">
     <main>
     <?php
 }
@@ -112,7 +134,7 @@ function renderFooter() {
         <div class="footer-inner">
             <span class="footer-brand">
                 <i class="fas fa-book-open"></i>
-                <strong>DigiScan</strong>
+                <strong>Noguchi Library</strong>
             </span>
             <span class="footer-sep">|</span>
             <span class="footer-sys">Digital Scanned Book Management System</span>

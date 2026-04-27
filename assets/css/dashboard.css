@@ -1,0 +1,307 @@
+/* ── Global Styles ── */
+body { background-color: #f3f6f9; }
+
+/* ── Main Content Area ── */
+.dash-wrap { display: flex; min-height: 100vh; }
+.sb-main { 
+    flex: 1; 
+    padding: 3rem 4rem; 
+    overflow-y: auto; 
+    text-align: left; 
+    background-color: #f3f6f9;
+}
+.sb-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.welcome-banner { 
+    background: linear-gradient(135deg, rgba(129, 140, 248, 0.95) 0%, rgba(99, 102, 241, 0.95) 100%), url('../img/noguchi_main.png'); 
+    background-size: cover;
+    background-position: center;
+    border-radius: 24px; 
+    padding: 4rem 3.5rem; 
+    color: white; 
+    margin-bottom: 2.5rem;
+    box-shadow: 0 15px 35px rgba(99, 102, 241, 0.2);
+}
+.welcome-banner h1 { font-size: 2.5rem; margin: 0 0 0.5rem 0; font-weight: 850; letter-spacing: -0.5px; }
+.welcome-banner p { font-size: 1.1rem; opacity: 0.9; margin: 0; }
+
+/* ── Top Grid (Vision/Mission) ── */
+.vm-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.card-small {
+    background: white;
+    border-radius: 24px;
+    padding: 2.5rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
+    border: 1px solid #f1f5f9;
+}
+
+.icon-box {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    color: white;
+    margin-bottom: 1.75rem;
+}
+
+.icon-purple { background: #6366f1; box-shadow: 0 8px 16px rgba(99, 102, 241, 0.2); }
+.icon-green { background: #10b981; box-shadow: 0 8px 16px rgba(16, 185, 129, 0.2); }
+
+.card-small h3 {
+    font-size: 1.1rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: #1e293b;
+    margin-bottom: 1.25rem;
+    letter-spacing: 0.5px;
+}
+
+.card-small p {
+    color: #64748b;
+    line-height: 1.6;
+    font-size: 0.95rem;
+    margin: 0;
+    text-align: justify;
+}
+
+/* ── History Section ── */
+.history-section {
+    background: white;
+    border-radius: 24px;
+    padding: 3.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    border: 1px solid #f1f5f9;
+    margin: 4rem 0;
+}
+.history-title-wrap {
+    margin-bottom: 2.5rem;
+}
+.history-title {
+    font-size: 2rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: #1e293b;
+    margin: 0 0 0.75rem 0;
+    letter-spacing: 0.5px;
+}
+.history-accent {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.accent-line {
+    width: 60px;
+    height: 6px;
+    background: #6366f1;
+    border-radius: 4px;
+}
+.accent-dot {
+    width: 6px;
+    height: 6px;
+    background: #6366f1;
+    border-radius: 50%;
+}
+
+.history-text {
+    color: #334155;
+    line-height: 2;
+    font-size: 1.05rem;
+    margin-bottom: 1.5rem;
+    text-align: justify;
+}
+
+/* ── History Image Card (Updated) ── */
+.history-img-card {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.history-img-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(99, 102, 241, 0.15);
+}
+
+.img-wrap {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 1.25rem;
+}
+
+.img-wrap img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+    filter: brightness(1.05) contrast(1.05);
+    border-radius: 16px;
+}
+
+.img-badge {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(4px);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    z-index: 10;
+}
+
+.quote-wrap {
+    display: flex;
+    gap: 1.25rem;
+    align-items: flex-start;
+    padding: 0 0.5rem;
+}
+
+.quote-icon {
+    width: 42px;
+    height: 42px;
+    background: #eef2ff;
+    color: #6366f1;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.quote-text {
+    font-size: 0.85rem;
+    color: #64748b;
+    font-style: italic;
+    line-height: 1.6;
+    margin: 0.5rem 0 0 0;
+}
+
+/* ── Image Stats Row ── */
+.image-stats {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.stat-item {
+    flex: 1;
+    min-width: 90px;
+    background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+    border: 1px solid #eef2ff;
+    border-radius: 16px;
+    padding: 1.25rem 0.5rem;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(99, 102, 241, 0.12);
+    border-color: #e0e7ff;
+}
+
+.stat-icon {
+    font-size: 1.4rem;
+    color: #6366f1;
+    margin-bottom: 0.75rem;
+    background: #eef2ff;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.stat-number {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: #64748b;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* ── Image Modal Styles ── */
+.img-modal {
+    display: none; 
+    position: fixed; 
+    z-index: 9999; 
+    left: 0; 
+    top: 0; 
+    width: 100%; 
+    height: 100%; 
+    background-color: rgba(15, 23, 42, 0.9);
+    align-items: center;
+    justify-content: center;
+}
+
+.img-modal-content {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 12px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    animation: zoomIn 0.3s ease;
+    object-fit: contain;
+}
+
+@keyframes zoomIn {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.close-modal {
+    position: absolute;
+    top: 2rem;
+    right: 3rem;
+    color: #f1f5f9;
+    font-size: 2.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.close-modal:hover {
+    color: white;
+    transform: scale(1.1);
+}
+
+/* ── Mobile Optimization ── */
+@media (max-width: 992px) {
+    .main-content { padding: 2rem; }
+    .vm-grid { grid-template-columns: 1fr; }
+}
