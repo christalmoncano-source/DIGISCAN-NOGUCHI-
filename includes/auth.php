@@ -9,7 +9,7 @@ if (session_status() === PHP_SESSION_NONE) {
  */
 function checkAccess($allowed_roles) {
     if (!isset($_SESSION['user_id'])) {
-        header("Location: /DIGISCAN-NOGUCHI-/registration/login.php");
+        header("Location: ../registration/login.php");
         exit();
     }
 
@@ -17,7 +17,7 @@ function checkAccess($allowed_roles) {
     $allowed_roles = (array)$allowed_roles;
 
     if (!in_array($user_role, $allowed_roles)) {
-        header("Location: /DIGISCAN-NOGUCHI-/access_denied.php");
+        header("Location: ../access_denied.php");
         exit();
     }
 }

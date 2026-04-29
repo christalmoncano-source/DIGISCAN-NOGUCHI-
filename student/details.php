@@ -58,7 +58,6 @@ renderHeaderNoNav(htmlspecialchars($b['title']) . " - Noguchi Library");
 ?>
 <link rel="stylesheet" href="../assets/css/student.css">
 <link rel="stylesheet" href="../assets/css/flipbook.css">
-<link rel="stylesheet" href="../assets/css/heyzine-viewer.css">
 
 <div class="dash-wrap">
     <?php $active_page = 'catalog'; include '../includes/sidebar_student.php'; ?>
@@ -99,8 +98,8 @@ renderHeaderNoNav(htmlspecialchars($b['title']) . " - Noguchi Library");
             <div class="flipbook-wrapper">
                 <?php if (!empty($b['heyzine_url'])): ?>
                     <div class="flipbook-container">
-                        <div class="flipbook-loading"><i class="fas fa-spinner fa-spin"></i> Loading Flipbook...</div>
-                        <iframe src="<?php echo htmlspecialchars($b['heyzine_url']); ?>" class="heyzine-iframe" allowfullscreen allow="clipboard-write"></iframe>
+                            <div class="flipbook-loading" id="heyzine-loader"><i class="fas fa-spinner fa-spin"></i> Loading Flipbook...</div>
+                            <iframe src="<?php echo htmlspecialchars($b['heyzine_url']); ?>" class="heyzine-iframe" allowfullscreen allow="clipboard-write" onload="document.getElementById('heyzine-loader').style.display='none';"></iframe>
                     </div>
                 <?php else: ?>
                     <div class="fb-wrap">

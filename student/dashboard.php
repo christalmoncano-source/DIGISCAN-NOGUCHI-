@@ -37,7 +37,7 @@ renderHeaderNoNav("Library Dashboard - Noguchi Library");
             <div class="card-small">
                 <div class="icon-box icon-green"><i class="fas fa-rocket"></i></div>
                 <h3>Our Mission</h3>
-                <p>To preserve, conserve, promote and strengthen Filipiniana collections in the region and in the Philippines.</p>
+                <p>Father Saturnino Urios University (FSUU) Noguchi Library exists to preserve and promote local knowledge in the region through instruction and research.</p>
             </div>
         </div>
 

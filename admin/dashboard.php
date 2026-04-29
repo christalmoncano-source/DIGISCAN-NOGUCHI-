@@ -138,10 +138,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['save_book'])) {
             $ip = $_SERVER['REMOTE_ADDR'];
             $log_stmt->bind_param("isss", $admin_id, $action, $details, $ip);
             $log_stmt->execute();
+            $log_stmt->close();
         } else {
-            $message = "Database Error: " . $conn->error;
+            $message = "Database Error: " . ($stmt->error ?: $conn->error);
             $messageType = "error";
         }
+        $stmt->close();
     }
 }
 
@@ -151,7 +153,11 @@ if (isset($_GET['action']) && isset($_GET['uid'])) {
     $act = $_GET['action'];
     $status = ($act == 'activate') ? 1 : 0;
     
-    $conn->query("UPDATE users SET is_active = $status WHERE id = $uid");
+    $stmt = $conn->prepare("UPDATE users SET is_active = ? WHERE id = ?");
+    $stmt->bind_param("ii", $status, $uid);
+    $stmt->execute();
+    $stmt->close();
+    
     $message = "User permissions modified.";
     $messageType = "success";
 }
@@ -161,10 +167,19 @@ if (isset($_GET['delete']) && $page == 'catalog') {
     $del_id = (int)$_GET['delete'];
     
     // Check if book exists
-    $check = $conn->query("SELECT title FROM books WHERE id = $del_id")->fetch_assoc();
+    $stmt_check = $conn->prepare("SELECT title FROM books WHERE id = ?");
+    $stmt_check->bind_param("i", $del_id);
+    $stmt_check->execute();
+    $check = $stmt_check->get_result()->fetch_assoc();
+    $stmt_check->close();
+
     if ($check) {
         $title = $check['title'];
-        $conn->query("DELETE FROM books WHERE id = $del_id");
+        $stmt_del = $conn->prepare("DELETE FROM books WHERE id = ?");
+        $stmt_del->bind_param("i", $del_id);
+        $stmt_del->execute();
+        $stmt_del->close();
+
         $message = "Book asset archived successfully.";
         $messageType = "success";
         
@@ -176,6 +191,7 @@ if (isset($_GET['delete']) && $page == 'catalog') {
         $ip = $_SERVER['REMOTE_ADDR'];
         $log_stmt->bind_param("isss", $admin_id, $action, $details, $ip);
         $log_stmt->execute();
+        $log_stmt->close();
     }
 }
 
@@ -225,7 +241,10 @@ if (isset($_GET['res_action']) && isset($_GET['rid'])) {
                 $messageType = "error";
             }
         } elseif ($action == 'decline') {
-            $conn->query("UPDATE reservations SET status = 'cancelled' WHERE id = $rid");
+            $stmt_dec = $conn->prepare("UPDATE reservations SET status = 'cancelled' WHERE id = ?");
+            $stmt_dec->bind_param("i", $rid);
+            $stmt_dec->execute();
+            $stmt_dec->close();
             
             // Notify User
             require_once '../includes/notifications_helper.php';
@@ -234,14 +253,26 @@ if (isset($_GET['res_action']) && isset($_GET['rid'])) {
             $message = "Reservation request declined.";
             $messageType = "success";
         } elseif ($action == 'pickup') {
-            $conn->query("UPDATE reservations SET status = 'in_use' WHERE id = $rid");
+            $stmt_pick = $conn->prepare("UPDATE reservations SET status = 'in_use' WHERE id = ?");
+            $stmt_pick->bind_param("i", $rid);
+            $stmt_pick->execute();
+            $stmt_pick->close();
+
             $message = "Book marked as in use.";
             $messageType = "success";
         } elseif ($action == 'return') {
             $conn->begin_transaction();
             try {
-                $conn->query("UPDATE reservations SET status = 'returned' WHERE id = $rid");
-                $conn->query("UPDATE books SET available_copies = available_copies + 1 WHERE id = " . (int)$reservation['book_id']);
+                $stmt_ret = $conn->prepare("UPDATE reservations SET status = 'returned' WHERE id = ?");
+                $stmt_ret->bind_param("i", $rid);
+                $stmt_ret->execute();
+                $stmt_ret->close();
+
+                $stmt_stock = $conn->prepare("UPDATE books SET available_copies = available_copies + 1 WHERE id = ?");
+                $stmt_stock->bind_param("i", $reservation['book_id']);
+                $stmt_stock->execute();
+                $stmt_stock->close();
+
                 $conn->commit();
                 
                 $message = "Book marked as returned. Inventory updated.";
@@ -253,6 +284,7 @@ if (isset($_GET['res_action']) && isset($_GET['rid'])) {
             }
         }
     }
+    $res_q->close();
 }
 
 // F. Reservation Remarks Update
@@ -279,7 +311,7 @@ renderHeaderNoNav($page_title);
 ?>
 <link rel="stylesheet" href="../assets/css/admin.css">
 <link rel="stylesheet" href="../assets/css/flipbook.css">
-<link rel="stylesheet" href="../assets/css/heyzine-viewer.css">
+
 
 
 <div class="admin-layout">
@@ -716,8 +748,8 @@ renderHeaderNoNav($page_title);
                             <!-- Heyzine Flipbook -->
                             <div class="flipbook-wrapper">
                                 <div class="flipbook-container">
-                                    <div class="flipbook-loading"><i class="fas fa-spinner fa-spin"></i> Loading Flipbook...</div>
-                                    <iframe src="<?php echo htmlspecialchars($b['heyzine_url']); ?>" class="heyzine-iframe" allowfullscreen allow="clipboard-write"></iframe>
+                                    <div class="flipbook-loading" id="adm-heyzine-loader"><i class="fas fa-spinner fa-spin"></i> Loading Flipbook...</div>
+                                    <iframe src="<?php echo htmlspecialchars($b['heyzine_url']); ?>" class="heyzine-iframe" allowfullscreen allow="clipboard-write" onload="document.getElementById('adm-heyzine-loader').style.display='none';"></iframe>
                                 </div>
                             </div>
                         <?php else: ?>

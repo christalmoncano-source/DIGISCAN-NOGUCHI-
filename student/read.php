@@ -26,7 +26,6 @@ $max_pages = $settings['max_preview_pages'] ?? '10';
 renderHeaderNoNav("Reading: " . htmlspecialchars($b['title']));
 ?>
 <link rel="stylesheet" href="../assets/css/student.css">
-<link rel="stylesheet" href="../assets/css/heyzine-viewer.css">
 
 <div class="dash-wrap">
     <?php $active_page = 'catalog'; include '../includes/sidebar_student.php'; ?>
@@ -47,8 +46,8 @@ renderHeaderNoNav("Reading: " . htmlspecialchars($b['title']));
                     <div class="flipbook-wrapper" style="max-width: 100%; margin: 0; height: 100%; border-radius: 0; padding: 0;">
                         <style>.flipbook-container { height: 100%; aspect-ratio: auto; }</style>
                         <div class="flipbook-container">
-                            <div class="flipbook-loading"><i class="fas fa-spinner fa-spin"></i> Loading Flipbook...</div>
-                            <iframe src="<?php echo htmlspecialchars($b['heyzine_url']); ?>" class="heyzine-iframe" allowfullscreen allow="clipboard-write"></iframe>
+                            <div class="flipbook-loading" id="read-heyzine-loader"><i class="fas fa-spinner fa-spin"></i> Loading Flipbook...</div>
+                            <iframe src="<?php echo htmlspecialchars($b['heyzine_url']); ?>" class="heyzine-iframe" allowfullscreen allow="clipboard-write" onload="document.getElementById('read-heyzine-loader').style.display='none';"></iframe>
                         </div>
                     </div>
                 <?php elseif ($b['file_path']): ?>

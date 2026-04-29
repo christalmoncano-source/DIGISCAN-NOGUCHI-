@@ -75,17 +75,27 @@ function processDueReminders($conn) {
         $deadline = $row['due_date'];
         
         // Update borrowing status to OVERDUE
-        $conn->query("UPDATE borrowings SET status = 'overdue' WHERE id = $bid");
+        $stmt_upd = $conn->prepare("UPDATE borrowings SET status = 'overdue' WHERE id = ?");
+        $stmt_upd->bind_param("i", $bid);
+        $stmt_upd->execute();
+        $stmt_upd->close();
         
         $alert_title = "CRITICAL ALERT: Overdue Asset Detected";
         $alert_msg = "Our monitoring system has flagged '$asset' as OVERDUE. The deadline was $deadline. Your digital access privileges may be restricted until this asset is returned.";
         
         // We only send one overdue alert per asset to keep the dashboard clean
-        $check = $conn->query("SELECT id FROM notifications WHERE user_id = $uid AND title = '$alert_title' AND message LIKE '%$asset%'");
-        if ($check->num_rows == 0) {
+        // Use prepared statement to avoid SQL injection with book titles containing quotes
+        $check_stmt = $conn->prepare("SELECT id FROM notifications WHERE user_id = ? AND title = ? AND message LIKE ?");
+        $like_asset = "%" . $asset . "%";
+        $check_stmt->bind_param("iss", $uid, $alert_title, $like_asset);
+        $check_stmt->execute();
+        $check_res = $check_stmt->get_result();
+        
+        if ($check_res->num_rows == 0) {
             sendNotification($conn, $uid, $alert_title, $alert_msg, 'alert');
             $overdue_count++;
         }
+        $check_stmt->close();
     }
 
     return [

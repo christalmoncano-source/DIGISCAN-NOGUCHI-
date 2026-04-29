@@ -114,7 +114,6 @@ renderHeaderNoNav("My Profile - Noguchi Library");
     <main class="sb-main">
         <header style="margin-bottom: 3rem;">
             <h1 style="font-size: 2.5rem; font-weight: 850; color: #0f172a; margin: 0;">Account Settings</h1>
-            <p style="color: #64748b; margin-top: 0.5rem;">Manage your institutional credentials and activity logs.</p>
         </header>
 
         <?php if (isset($_SESSION['message'])): ?>
@@ -133,8 +132,8 @@ renderHeaderNoNav("My Profile - Noguchi Library");
         <div style="background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 1.25rem 1.5rem; border-radius: 0 12px 12px 0; margin-bottom: 2.5rem; display: flex; gap: 1rem; align-items: flex-start; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
             <i class="fas fa-info-circle" style="color: #3b82f6; font-size: 1.25rem; margin-top: 0.125rem;"></i>
             <div>
-                <h4 style="margin: 0 0 0.35rem 0; color: #1e3a8a; font-size: 1.05rem; font-weight: 800;">Reservation Policy Notice</h4>
-                <p style="margin: 0; color: #1e40af; font-size: 0.95rem; line-height: 1.5;">Please be informed that once you reserve a book, it will be held for <strong>3 days</strong>. If you do not physically visit the Noguchi Library within this period, your reservation will be automatically removed.</p>
+                <h3 style="margin: 0 0 0.35rem 0; color: #1e3a8a; font-weight: 800;">Reservation Policy Notice</h3>
+                <p style="margin: 0; color: #1e40af; font-size: 0.97 rem; line-height: 1.5;">Please be informed that once you reserve a book, it will be held for <strong>3 days</strong>. If you do not physically visit the Noguchi Library within this period, your reservation will be automatically removed.</p>
             </div>
         </div>
 

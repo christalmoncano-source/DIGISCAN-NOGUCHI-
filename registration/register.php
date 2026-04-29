@@ -2,11 +2,7 @@
 require_once '../config/db.php';
 require_once '../includes/auth.php';
 
-$roles_result = $conn->query("SELECT id, role_name FROM roles");
-$roles_options = "";
-while($row = $roles_result->fetch_assoc()) {
-    $roles_options .= "<option value='" . $row['id'] . "'>" . ucfirst($row['role_name']) . "</option>";
-}
+
 
 $message = "";
 $messageType = "";
@@ -18,7 +14,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $course = trim($_POST['course']);
     $email = trim($_POST['email']);
     $password = $_POST['password'];
-    $role_id = $_POST['role_id'];
+    $role_id = 2; // Hardcoded to Student (ID: 2) for all new registrations
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL) || !preg_match('/@urios\.edu\.ph$/', $email)) {
         $message = "Invalid institutional email. Must end with @urios.edu.ph";
@@ -77,13 +73,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="form-group"><label>Full Name</label><input type="text" name="full_name" required></div>
             <div class="form-group"><label>Course/Dept</label><input type="text" name="course" required></div>
             <div class="form-group"><label>Email (@urios.edu.ph)</label><input type="email" name="email" id="userEmail" required></div>
-            <div class="form-group">
-                <label>Role</label>
-                <select name="role_id" required>
-                    <option value="">Select Role</option>
-                    <?php echo $roles_options; ?>
-                </select>
-            </div>
             <div class="form-group"><label>Password</label><input type="password" name="password" required></div>
             <button type="submit" id="submitBtn">Register</button>
         </form>
@@ -104,7 +93,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             const templateParams = {
                 to_name: "<?php echo $user_data['full_name']; ?>",
                 to_email: "<?php echo $user_data['email']; ?>",
-                verification_link: "http://localhost/DIGISCAN-NOGUCHI-/registration/verify.php?token=<?php echo $user_data['token']; ?>"
+                verification_link: "http://" + window.location.host + "/registration/verify.php?token=<?php echo $user_data['token']; ?>"
             };
 
             emailjs.send('service_c5th9vf', 'template_f8s3rka', templateParams)

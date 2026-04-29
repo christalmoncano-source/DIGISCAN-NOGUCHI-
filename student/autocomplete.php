@@ -26,10 +26,15 @@ $result = $stmt->get_result();
 $books = [];
 while ($row = $result->fetch_assoc()) {
     // Resolve correct cover image
-    $cover = null;
+    $cover = '../assets/img/book-placeholder.jpg'; // Default
     if (!empty($row['cover_image'])) {
         $dec = json_decode($row['cover_image'], true);
-        $cover = is_array($dec) ? ('../' . $dec[0]) : ('../' . $row['cover_image']);
+        if (is_array($dec) && isset($dec[0])) {
+            $cover = '../' . $dec[0];
+        } else {
+            // It's a plain string path
+            $cover = '../' . $row['cover_image'];
+        }
     }
     $books[] = [
         'id'       => $row['id'],
