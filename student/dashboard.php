@@ -2,6 +2,8 @@
 require_once '../includes/auth.php';
 require_once '../config/db.php';
 require_once '../includes/notifications_helper.php';
+global $conn;
+
 
 checkAccess(['student', 'admin']);
 
@@ -9,7 +11,25 @@ $user_id = $_SESSION['user_id'];
 $full_name = $_SESSION['full_name'] ?? 'User';
 $first_name = explode(' ', $full_name)[0];
 
-renderHeaderNoNav("Library Dashboard - Noguchi Library");
+renderHeaderNoNav("Library Overview - Noguchi Library");
+
+
+// Fetch Student Stats
+$stats_read = 0;
+$stats_res  = 0;
+$stats_notif = 0;
+
+if ($conn) {
+    $res_read = $conn->query("SELECT COUNT(*) FROM reading_history WHERE user_id = $user_id");
+    if ($res_read) $stats_read = $res_read->fetch_row()[0];
+
+    $res_res = $conn->query("SELECT COUNT(*) FROM reservations WHERE user_id = $user_id AND status IN ('pending', 'approved')");
+    if ($res_res) $stats_res = $res_res->fetch_row()[0];
+
+    $res_notif = $conn->query("SELECT COUNT(*) FROM notifications WHERE user_id = $user_id AND is_read = 0");
+    if ($res_notif) $stats_notif = $res_notif->fetch_row()[0];
+}
+
 ?>
 
 <link rel="stylesheet" href="../assets/css/dashboard.css">
@@ -25,6 +45,31 @@ renderHeaderNoNav("Library Dashboard - Noguchi Library");
         <div class="welcome-banner">
             <h1>Welcome back, <?php echo htmlspecialchars($first_name); ?>.</h1>
             <p>Your institutional library. Search, discover, and access digital academic resources.</p>
+        </div>
+
+        <!-- Dynamic Summary Grid -->
+        <div class="summary-grid">
+            <div class="summary-card">
+                <div class="s-icon s-blue"><i class="fas fa-book-open"></i></div>
+                <div class="s-info">
+                    <span class="s-label">Books Read</span>
+                    <h2 class="s-value"><?php echo number_format($stats_read); ?></h2>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="s-icon s-orange"><i class="fas fa-bookmark"></i></div>
+                <div class="s-info">
+                    <span class="s-label">Active Reservations</span>
+                    <h2 class="s-value"><?php echo number_format($stats_res); ?></h2>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="s-icon s-indigo"><i class="fas fa-bell"></i></div>
+                <div class="s-info">
+                    <span class="s-label">New Notifications</span>
+                    <h2 class="s-value"><?php echo number_format($stats_notif); ?></h2>
+                </div>
+            </div>
         </div>
 
         <div class="vm-grid">
@@ -94,6 +139,36 @@ renderHeaderNoNav("Library Dashboard - Noguchi Library");
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity Section -->
+        <div style="margin-top: 4rem;">
+            <h3 style="font-size: 1.25rem; font-weight: 800; color: #1e293b; margin-bottom: 2rem; display: flex; align-items: center; gap: 0.75rem;">
+                <i class="fas fa-history" style="color: #6366f1;"></i> Recently Viewed
+            </h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
+                <?php
+                $recent_q = $conn->query("SELECT rh.*, b.title, b.author, b.cover_image FROM reading_history rh JOIN books b ON rh.book_id = b.id WHERE rh.user_id = $user_id ORDER BY rh.viewed_at DESC LIMIT 4");
+                if ($recent_q && $recent_q->num_rows > 0):
+
+                    while($r = $recent_q->fetch_assoc()):
+                ?>
+                    <a href="details.php?id=<?php echo $r['book_id']; ?>" style="text-decoration: none; color: inherit;">
+                        <div style="background: white; border-radius: 16px; padding: 1.25rem; border: 1px solid #f1f5f9; display: flex; gap: 1rem; align-items: center; transition: transform 0.2s; cursor: pointer;" onmouseover="this.style.transform='translateX(5px)'" onmouseout="this.style.transform='translateX(0)'">
+                            <div style="width: 50px; height: 70px; border-radius: 4px; overflow: hidden; flex-shrink: 0;">
+                                <img src="../<?php echo $r['cover_image'] ?: 'assets/img/book-placeholder.jpg'; ?>" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            <div style="overflow: hidden;">
+                                <h4 style="margin: 0; font-size: 0.95rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><?php echo htmlspecialchars($r['title']); ?></h4>
+                                <p style="margin: 0.25rem 0 0; font-size: 0.8rem; color: #64748b;"><?php echo htmlspecialchars($r['author']); ?></p>
+                                <p style="margin: 0.5rem 0 0; font-size: 0.7rem; color: #94a3b8;"><?php echo date('M d, H:i', strtotime($r['viewed_at'])); ?></p>
+                            </div>
+                        </div>
+                    </a>
+                <?php endwhile; else: ?>
+                    <p style="grid-column: 1/-1; color: #94a3b8; font-style: italic;">No recent activities found.</p>
+                <?php endif; ?>
             </div>
         </div>
     </main>

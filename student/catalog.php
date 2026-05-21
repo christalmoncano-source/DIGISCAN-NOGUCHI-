@@ -1,6 +1,8 @@
 <?php
 require_once '../includes/auth.php';
 require_once '../config/db.php';
+global $conn;
+
 checkAccess(['student', 'admin']);
 
 // Filtering Logic
@@ -24,6 +26,11 @@ switch($sort) {
 
 $results = $conn->query($query);
 $categories = $conn->query("SELECT DISTINCT category FROM books ORDER BY category ASC");
+
+if (!$results || !$categories) {
+    die("Database query failed: " . $conn->error);
+}
+
 
 renderHeaderNoNav("Library Catalog - Noguchi Library");
 ?>

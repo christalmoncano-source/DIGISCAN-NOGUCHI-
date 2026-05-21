@@ -127,7 +127,8 @@ $base_path = (strpos(dirname($_SERVER['PHP_SELF']), 'student') !== false || strp
             <a href="?page=catalog" class="nav-item <?php echo $active_page === 'catalog' ? 'active' : ''; ?>"><i class="fas fa-book"></i> Inventory</a>
             <a href="?page=users" class="nav-item <?php echo $active_page === 'users' ? 'active' : ''; ?>"><i class="fas fa-users"></i> User Center</a>
         <?php else: ?>
-            <a href="dashboard.php" class="nav-item <?php echo $active_page === 'dashboard' ? 'active' : ''; ?>"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="dashboard.php" class="nav-item <?php echo $active_page === 'dashboard' ? 'active' : ''; ?>"><i class="fas fa-home"></i> Overview</a>
+
             <a href="catalog.php" class="nav-item <?php echo $active_page === 'catalog' ? 'active' : ''; ?>"><i class="fas fa-search"></i> Browse Catalog</a>
             <a href="profile.php" class="nav-item <?php echo $active_page === 'profile' ? 'active' : ''; ?>"><i class="fas fa-user-circle"></i> My Profile</a>
         <?php endif; ?>

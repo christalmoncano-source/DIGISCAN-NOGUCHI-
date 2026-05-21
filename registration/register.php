@@ -1,6 +1,7 @@
 <?php
 require_once '../config/db.php';
 require_once '../includes/auth.php';
+global $conn;
 
 
 
@@ -16,7 +17,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = $_POST['password'];
     $role_id = 2; // Hardcoded to Student (ID: 2) for all new registrations
 
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL) || !preg_match('/@urios\.edu\.ph$/', $email)) {
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL) || !preg_match('/@urios\.edu\.ph$/i', $email)) {
         $message = "Invalid institutional email. Must end with @urios.edu.ph";
         $messageType = "danger";
     } else {
@@ -43,7 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $message = "Registration successful! Check your email for verification.";
                 $messageType = "success";
             } else {
-                $message = "Critical Error: " . $conn->error;
+                $message = "Critical Error:" . $conn->error;
                 $messageType = "danger";
             }
         }
@@ -69,13 +70,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="alert alert-<?php echo $messageType; ?>"><?php echo $message; ?></div>
         <?php endif; ?>
         
+        <?php if (!$registration_success): ?>
         <form method="POST" id="regForm">
-            <div class="form-group"><label>Full Name</label><input type="text" name="full_name" required></div>
-            <div class="form-group"><label>Course/Dept</label><input type="text" name="course" required></div>
+            <div class="form-group"><label>Full Name</label><input type="text" name="full_name" placeholder="John Doe" required></div>
+            <div class="form-group"><label>Course/Dept</label><input type="text" name="course" placeholder="BSIT" required></div>
             <div class="form-group"><label>Email (@urios.edu.ph)</label><input type="email" name="email" id="userEmail" required></div>
-            <div class="form-group"><label>Password</label><input type="password" name="password" required></div>
+            <div class="form-group"><label>Password</label><input type="password" name="password" placeholder="••••••••" required></div>
             <button type="submit" id="submitBtn">Register</button>
         </form>
+        <?php else: ?>
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="login.php" class="btn btn-primary" style="display: inline-block; padding: 0.8rem 2rem; background: var(--primary-color); color: white; text-decoration: none; border-radius: 8px; font-weight: 700;">Proceed to Login</a>
+            </div>
+        <?php endif; ?>
         
         <p style="text-align: center; margin-top: 1.5rem;">
             Already have an account? <a href="login.php" style="color: var(--primary-color);">Login</a>
@@ -91,9 +98,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <?php if ($registration_success): ?>
             // Send Verification Email
             const templateParams = {
-                to_name: "<?php echo $user_data['full_name']; ?>",
+                to_name: "<?php echo addslashes($user_data['full_name']); ?>",
                 to_email: "<?php echo $user_data['email']; ?>",
-                verification_link: "http://" + window.location.host + "/registration/verify.php?token=<?php echo $user_data['token']; ?>"
+                verification_link: window.location.origin + window.location.pathname.replace('register.php', 'verify.php') + "?token=<?php echo $user_data['token']; ?>"
             };
 
             emailjs.send('service_c5th9vf', 'template_f8s3rka', templateParams)

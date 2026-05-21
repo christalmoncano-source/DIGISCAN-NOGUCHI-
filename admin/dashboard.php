@@ -1,6 +1,7 @@
 <?php
 require_once '../includes/auth.php';
 require_once '../config/db.php';
+global $conn;
 
 // Enforce Admin Access
 checkAccess('admin');
@@ -197,6 +198,7 @@ if (isset($_GET['delete']) && $page == 'catalog') {
 
 // E. Reservation Management
 if (isset($_GET['res_action']) && isset($_GET['rid'])) {
+    global $conn;
     $rid = (int)$_GET['rid'];
     $action = $_GET['res_action'];
     
@@ -289,6 +291,7 @@ if (isset($_GET['res_action']) && isset($_GET['rid'])) {
 
 // F. Reservation Remarks Update
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['save_remarks'])) {
+    global $conn;
     $rid = (int)$_POST['res_id'];
     $remarks = trim($_POST['remarks']);
     
@@ -302,6 +305,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['save_remarks'])) {
 
 // G. Mark Notification as Read
 if (isset($_GET['read_notif'])) {
+    global $conn;
     $nid = (int)$_GET['read_notif'];
     $uid = $_SESSION['user_id'];
     $conn->query("UPDATE notifications SET is_read = 1 WHERE id = $nid AND user_id = $uid");
@@ -341,7 +345,7 @@ renderHeaderNoNav($page_title);
         <nav class="sb-nav">
             <span class="sb-nav-label">Main</span>
             <a href="?page=overview" class="sb-link <?php echo $page=='overview'?'sb-active':''; ?>">
-                <span class="sb-icon"><i class="fas fa-gauge-high"></i></span> Overview
+                <span class="sb-icon"><i class="fas fa-gauge-high"></i></span> Dashboard
             </a>
             <a href="?page=catalog" class="sb-link <?php echo ($page=='catalog'||$page=='edit_book'||$page=='preview')?'sb-active':''; ?>">
                 <span class="sb-icon"><i class="fas fa-book-open"></i></span> Catalogs
@@ -378,20 +382,146 @@ renderHeaderNoNav($page_title);
         <?php endif; ?>
 
         <?php if ($page == 'overview'): ?>
-            <div class="welcome-banner" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.9) 100%), url('../assets/img/noguchi_main.png'); background-size: cover; background-position: center; border-radius: 20px; padding: 4rem; color: white; margin-bottom: 2.5rem; text-align: left; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+            <div class="welcome-banner" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.9) 100%), url('../assets/img/noguchi_main.png'); background-size: cover; background-position: center; border-radius: 20px; padding: 3rem; color: white; margin-bottom: 2.5rem; text-align: left; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+
                 <h1 style="font-size: 2.5rem; font-weight: 850; margin: 0 0 0.5rem 0; letter-spacing: -0.5px;">Admin Dashboard</h1>
                 <p style="font-size: 1.1rem; opacity: 0.8; margin: 0;">Welcome, <?php echo explode(' ', $_SESSION['full_name'])[0]; ?>. You are managing the Noguchi Library Digital Assets.</p>
             </div>
              
             <!-- Stats Row -->
-            <div style="display: grid; grid-template-columns: 1fr; gap: 2rem;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem;">
+                <?php
+                $count_books = $conn->query("SELECT COUNT(*) FROM books")->fetch_row()[0];
+                $count_students = $conn->query("SELECT COUNT(*) FROM users WHERE role_id = (SELECT id FROM roles WHERE role_name = 'student')")->fetch_row()[0];
+                $count_opens = $conn->query("SELECT COUNT(*) FROM reading_history")->fetch_row()[0];
+                $count_res = $conn->query("SELECT COUNT(*) FROM reservations WHERE status = 'pending'")->fetch_row()[0];
+                $count_confirmed = $conn->query("SELECT COUNT(*) FROM reservations WHERE status IN ('approved', 'in_use')")->fetch_row()[0];
+                $count_cancelled = $conn->query("SELECT COUNT(*) FROM reservations WHERE status = 'cancelled'")->fetch_row()[0];
+                $count_returned = $conn->query("SELECT COUNT(*) FROM reservations WHERE status = 'returned'")->fetch_row()[0];
+                ?>
+                <div class="card" style="display: flex; align-items: center; gap: 1.5rem; padding: 1.5rem; border-left: 4px solid #6366f1;">
+                    <div style="width: 48px; height: 48px; border-radius: 12px; background: #eef2ff; color: #6366f1; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.85rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Total Collection</div>
+                        <div style="font-size: 1.5rem; font-weight: 800; color: #1e293b;"><?php echo number_format($count_books); ?></div>
+                    </div>
+                </div>
+                <div class="card" style="display: flex; align-items: center; gap: 1.5rem; padding: 1.5rem; border-left: 4px solid #10b981;">
+                    <div style="width: 48px; height: 48px; border-radius: 12px; background: #ecfdf5; color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.85rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Total Students</div>
+                        <div style="font-size: 1.5rem; font-weight: 800; color: #1e293b;"><?php echo number_format($count_students); ?></div>
+                    </div>
+                </div>
+                <div class="card" style="display: flex; align-items: center; gap: 1.5rem; padding: 1.5rem; border-left: 4px solid #f59e0b;">
+                    <div style="width: 48px; height: 48px; border-radius: 12px; background: #fffbeb; color: #f59e0b; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.85rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Total Views</div>
+                        <div style="font-size: 1.5rem; font-weight: 800; color: #1e293b;"><?php echo number_format($count_opens); ?></div>
+                    </div>
+                </div>
+                <div class="card" style="display: flex; align-items: center; gap: 1.5rem; padding: 1.5rem; border-left: 4px solid #ef4444;">
+                    <div style="width: 48px; height: 48px; border-radius: 12px; background: #fef2f2; color: #ef4444; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.85rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Pending Res.</div>
+                        <div style="font-size: 1.5rem; font-weight: 800; color: #1e293b;"><?php echo number_format($count_res); ?></div>
+                    </div>
+                </div>
+                <div class="card" style="display: flex; align-items: center; gap: 1.5rem; padding: 1.5rem; border-left: 4px solid #0d9488;">
+                    <div style="width: 48px; height: 48px; border-radius: 12px; background: #f0fdfa; color: #0d9488; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.85rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Confirmed Res.</div>
+                        <div style="font-size: 1.5rem; font-weight: 800; color: #1e293b;"><?php echo number_format($count_confirmed); ?></div>
+                    </div>
+                </div>
+                <div class="card" style="display: flex; align-items: center; gap: 1.5rem; padding: 1.5rem; border-left: 4px solid #e11d48;">
+                    <div style="width: 48px; height: 48px; border-radius: 12px; background: #fff1f2; color: #e11d48; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                        <i class="fas fa-calendar-times"></i>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.85rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Cancelled Res.</div>
+                        <div style="font-size: 1.5rem; font-weight: 800; color: #1e293b;"><?php echo number_format($count_cancelled); ?></div>
+                    </div>
+                </div>
+                <div class="card" style="display: flex; align-items: center; gap: 1.5rem; padding: 1.5rem; border-left: 4px solid #2563eb;">
+                    <div style="width: 48px; height: 48px; border-radius: 12px; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                        <i class="fas fa-arrow-rotate-left"></i>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.85rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Returned Books</div>
+                        <div style="font-size: 1.5rem; font-weight: 800; color: #1e293b;"><?php echo number_format($count_returned); ?></div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 2rem; align-items: start;">
+
+                <!-- Book Usage Statistics -->
+                <div class="card" style="text-align: left;">
+                    <h3 style="margin-top: 0; margin-bottom: 1.5rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.75rem; display: flex; align-items: center; gap: 0.75rem;">
+                        <i class="fas fa-chart-bar" style="color: #6366f1;"></i> Material Utilization Report
+                    </h3>
+                    <div class="table-responsive">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid #f1f5f9;">
+                                    <th style="padding: 0.75rem; text-align: left; font-size: 0.8rem; color: #64748b; text-transform: uppercase;">Book Title</th>
+                                    <th style="padding: 0.75rem; text-align: center; font-size: 0.8rem; color: #64748b; text-transform: uppercase;">Students</th>
+                                    <th style="padding: 0.75rem; text-align: center; font-size: 0.8rem; color: #64748b; text-transform: uppercase;">Total Views</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                $usage_q = $conn->query("SELECT b.title, b.cover_image, COUNT(DISTINCT rh.user_id) as student_count, COUNT(rh.id) as total_opens
+                                                       FROM books b
+                                                       LEFT JOIN reading_history rh ON b.id = rh.book_id
+                                                       GROUP BY b.id
+                                                       ORDER BY student_count DESC
+                                                       LIMIT 6");
+                                if ($usage_q && $usage_q->num_rows > 0):
+                                    while($row = $usage_q->fetch_assoc()): 
+                                        $ci_raw = $row['cover_image'] ?? '';
+                                        $ci_dec = json_decode($ci_raw, true);
+                                        $ci_first = is_array($ci_dec) && !empty($ci_dec) ? $ci_dec[0] : ((!empty($ci_raw) && $ci_raw[0] !== '[') ? $ci_raw : '');
+                                        $ci_src = !empty($ci_first) ? '../'.$ci_first : '../assets/img/book-placeholder.jpg';
+                                ?>
+                                    <tr style="border-bottom: 1px solid #f8fafc;">
+                                        <td style="padding: 0.75rem; display: flex; align-items: center; gap: 0.75rem;">
+                                            <img src="<?php echo htmlspecialchars($ci_src); ?>" style="width: 30px; height: 40px; object-fit: cover; border-radius: 4px;">
+                                            <span style="font-weight: 600; font-size: 0.9rem; color: #1e293b;"><?php echo htmlspecialchars($row['title']); ?></span>
+                                        </td>
+                                        <td style="padding: 0.75rem; text-align: center; font-weight: 700; color: #6366f1;"><?php echo number_format($row['student_count']); ?></td>
+                                        <td style="padding: 0.75rem; text-align: center; color: #64748b;"><?php echo number_format($row['total_opens']); ?></td>
+                                    </tr>
+                                <?php endwhile; else: ?>
+                                    <tr><td colspan="3" style="padding: 2rem; text-align: center; color: #94a3b8;">No available data.</td></tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <!-- Quick Logs -->
                 <div class="card" style="text-align: left;">
+
                     <h3 style="margin-top: 0; margin-bottom: 1.5rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.75rem;">Recent Activity</h3>
                     <div style="max-height: 400px; overflow-y: auto;">
                         <?php
                         $logs = $conn->query("SELECT sl.*, u.full_name FROM system_logs sl JOIN users u ON sl.admin_id = u.id ORDER BY sl.created_at DESC LIMIT 10");
-                        while($l = $logs->fetch_assoc()): ?>
+                        if ($logs && $logs->num_rows > 0):
+                            while($l = $logs->fetch_assoc()): ?>
+
                             <div style="padding: 0.75rem; border-bottom: 1px solid #f8fafc; font-size: 0.9rem;">
                                 <span style="color: var(--text-light);"><?php echo date('M d, H:i', strtotime($l['created_at'])); ?>:</span> 
                                 <strong><?php echo $l['full_name']; ?></strong> performed 
@@ -405,7 +535,11 @@ renderHeaderNoNav($page_title);
                                 ?>
                                 (<?php echo $detailsText; ?>)
                             </div>
-                        <?php endwhile; ?>
+                        <?php endwhile; 
+                        else: ?>
+                            <div style="padding: 1rem; color: var(--text-light);">No activity logs found.</div>
+                        <?php endif; ?>
+
                     </div>
                 </div>
             </div>
@@ -430,12 +564,15 @@ renderHeaderNoNav($page_title);
                 
                 <?php
                 // Fetch basic book details for JS autocomplete
-                $all_books_q = $conn->query("SELECT id, title, author FROM books");
                 $books_array = [];
-                while($bk = $all_books_q->fetch_assoc()) {
-                    $books_array[] = $bk;
+                $all_books_q = $conn->query("SELECT id, title, author FROM books");
+                if ($all_books_q) {
+                    while($bk = $all_books_q->fetch_assoc()) {
+                        $books_array[] = $bk;
+                    }
                 }
                 ?>
+
                 <script>
                 document.addEventListener('DOMContentLoaded', function() {
                     const searchInput = document.getElementById('catalogSearch');
@@ -518,7 +655,9 @@ renderHeaderNoNav($page_title);
                         } else {
                             $res = $conn->query("SELECT * FROM books ORDER BY id DESC");
                         }
-                        while($row = $res->fetch_assoc()): ?>
+                        if ($res && $res->num_rows > 0):
+                            while($row = $res->fetch_assoc()): ?>
+
                             <tr>
                                 <td><?php echo htmlspecialchars($row['dewey_decimal'] ?: 'N/A'); ?></td>
                                 <td style="display: flex; align-items: center; gap: 1rem;">
@@ -548,7 +687,11 @@ renderHeaderNoNav($page_title);
                                     <a href="?page=catalog&delete=<?php echo $row['id']; ?>" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; color: var(--error-color);" onclick="return confirm('Archive this asset?')" title="Delete Asset"><i class="fas fa-trash"></i></a>
                                 </td>
                             </tr>
-                        <?php endwhile; ?>
+                        <?php endwhile; 
+                        else: ?>
+                            <tr><td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-light);">No books found in the catalog.</td></tr>
+                        <?php endif; ?>
+
                     </tbody>
                 </table>
                 </div>
@@ -955,44 +1098,90 @@ renderHeaderNoNav($page_title);
                     </form>
                 </div>
             </div>
+            
+            <!-- User Statistics Report -->
+            <div style="display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 2.5rem;">
 
-            <div class="card" style="padding: 0; overflow: hidden; text-align: left;">
+                <div class="card" style="padding: 1.5rem; border-top: 4px solid #6366f1;">
+                    <h3 style="margin-top: 0; margin-bottom: 1.5rem; font-size: 1rem; color: #1e293b; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-trophy" style="color: #f59e0b;"></i> Top Readers (Most Books Read)
+                    </h3>
+                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        <?php
+                        $top_readers = $conn->query("SELECT u.full_name, (SELECT COUNT(*) FROM reading_history WHERE user_id = u.id) as read_count 
+                                                   FROM users u 
+                                                   WHERE u.role_id = (SELECT id FROM roles WHERE role_name = 'student')
+                                                   ORDER BY read_count DESC LIMIT 5");
+                        if ($top_readers && $top_readers->num_rows > 0):
+                            while($tr = $top_readers->fetch_assoc()):
+                                $percent = ($tr['read_count'] > 0) ? min(100, ($tr['read_count'] / 50) * 100) : 0; // Baseline 50 books for 100%
+                        ?>
+                            <div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 0.85rem;">
+                                    <span style="font-weight: 600;"><?php echo htmlspecialchars($tr['full_name']); ?></span>
+                                    <span style="color: #6366f1; font-weight: 700;"><?php echo $tr['read_count']; ?> Books</span>
+                                </div>
+                                <div style="height: 6px; background: #f1f5f9; border-radius: 10px; overflow: hidden;">
+                                    <div style="height: 100%; width: <?php echo $percent; ?>%; background: linear-gradient(90deg, #6366f1, #818cf8); border-radius: 10px;"></div>
+                                </div>
+                            </div>
+                        <?php endwhile; else: ?>
+                            <p style="color: #94a3b8; font-size: 0.85rem;">No reading activity recorded yet.</p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+
+            </div>
+
+
+            <div class="card" style="padding: 0; overflow: hidden; text-align: left; border: 1px solid #e2e8f0; box-shadow: var(--shadow-sm);">
                 <div style="overflow-x: auto;">
-                    <table>
-                    <thead>
+                    <table style="width: 100%; border-collapse: separate; border-spacing: 0;">
+                    <thead style="background: #f8fafc;">
                         <tr>
-                            <th>Identity</th>
-                            <th>Classification</th>
-                            <th>Audit Status</th>
-                            <th>Created At</th>
-                            <th>Control Access</th>
+                            <th style="padding: 1.25rem 1.5rem; border-bottom: 1px solid #e2e8f0;">Identity</th>
+                            <th style="padding: 1.25rem 1.5rem; border-bottom: 1px solid #e2e8f0;">Classification</th>
+                            <th style="padding: 1.25rem 1.5rem; border-bottom: 1px solid #e2e8f0; text-align: center;">Books Read</th>
+                            <th style="padding: 1.25rem 1.5rem; border-bottom: 1px solid #e2e8f0;">Audit Status</th>
+                            <th style="padding: 1.25rem 1.5rem; border-bottom: 1px solid #e2e8f0;">Created At</th>
+                            <th style="padding: 1.25rem 1.5rem; border-bottom: 1px solid #e2e8f0;">Control Access</th>
                         </tr>
                     </thead>
+
                     <tbody>
                         <?php
                         $user_search = $_GET['user_search'] ?? '';
                         if ($user_search !== '') {
-                            $stmt = $conn->prepare("SELECT u.*, r.role_name FROM users u JOIN roles r ON u.role_id = r.id WHERE u.full_name LIKE CONCAT('%', ?, '%') OR u.email LIKE CONCAT('%', ?, '%') ORDER BY u.id DESC");
+                            $stmt = $conn->prepare("SELECT u.*, r.role_name, (SELECT COUNT(*) FROM reading_history WHERE user_id = u.id) as read_count FROM users u JOIN roles r ON u.role_id = r.id WHERE u.full_name LIKE CONCAT('%', ?, '%') OR u.email LIKE CONCAT('%', ?, '%') ORDER BY u.id DESC");
                             $stmt->bind_param("ss", $user_search, $user_search);
+
                             $stmt->execute();
                             $users = $stmt->get_result();
                         } else {
-                            $users = $conn->query("SELECT u.*, r.role_name FROM users u JOIN roles r ON u.role_id = r.id ORDER BY u.id DESC");
+                            $users = $conn->query("SELECT u.*, r.role_name, (SELECT COUNT(*) FROM reading_history WHERE user_id = u.id) as read_count FROM users u JOIN roles r ON u.role_id = r.id ORDER BY u.id DESC");
                         }
+
                         while($u = $users->fetch_assoc()): ?>
                             <tr>
-                                <td>
+                                <td style="padding: 1.25rem 1.5rem;">
                                     <strong><?php echo htmlspecialchars($u['full_name']); ?></strong><br>
                                     <small><?php echo $u['email']; ?></small>
                                 </td>
-                                <td><span class="badge" style="background: #eef2ff; color: #4f46e5;"><?php echo strtoupper($u['role_name']); ?></span></td>
-                                <td>
+                                <td style="padding: 1.25rem 1.5rem;"><span class="badge" style="background: #eef2ff; color: #4f46e5;"><?php echo strtoupper($u['role_name']); ?></span></td>
+
+                                <td style="text-align: center; padding: 1.25rem 1.5rem;">
+                                    <span style="font-weight: 800; color: #6366f1; font-size: 1.1rem;"><?php echo number_format($u['read_count']); ?></span>
+                                </td>
+
+                                <td style="padding: 1.25rem 1.5rem;">
                                     <span class="status-badge <?php echo $u['is_active']?'status-active':'status-pending'; ?>">
                                         <?php echo $u['is_active']?'ACTIVE':'PENDING'; ?>
                                     </span>
                                 </td>
-                                <td><?php echo date('M d, Y', strtotime($u['created_at'])); ?></td>
-                                <td>
+                                <td style="padding: 1.25rem 1.5rem; color: var(--text-light); font-size: 0.9rem;"><?php echo date('M d, Y', strtotime($u['created_at'])); ?></td>
+
+                                <td style="padding: 1.25rem 1.5rem;">
                                     <?php if($u['is_active']): ?>
                                         <a href="?page=users&action=deactivate&uid=<?php echo $u['id']; ?>" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.8rem; background: #fee2e2; color: #991b1b; border: none;">Deactivate</a>
                                     <?php else: ?>

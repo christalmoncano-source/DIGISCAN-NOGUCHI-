@@ -4,6 +4,7 @@
  */
 require_once '../includes/auth.php';
 require_once '../config/db.php';
+global $conn;
 checkAccess(['student', 'admin']);
 
 $user_id = $_SESSION['user_id'];
@@ -13,6 +14,26 @@ $u = $u_res->fetch_assoc();
 // Statistics
 $total_history = $conn->query("SELECT COUNT(*) FROM borrowings WHERE user_id = $user_id")->fetch_row()[0];
 $active_loans = $conn->query("SELECT COUNT(*) FROM borrowings WHERE user_id = $user_id AND status IN ('borrowed', 'overdue')")->fetch_row()[0];
+
+// Handle Name Update
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_name'])) {
+    $new_name = trim($_POST['full_name']);
+    if (!empty($new_name)) {
+        $stmt = $conn->prepare("UPDATE users SET full_name = ? WHERE id = ?");
+        $stmt->bind_param("si", $new_name, $user_id);
+        if ($stmt->execute()) {
+            $_SESSION['full_name'] = $new_name; // Update session
+            $_SESSION['message'] = "Preferred name updated successfully!";
+            header("Location: profile.php");
+            exit();
+        } else {
+            $_SESSION['error'] = "Failed to update name. Please try again.";
+        }
+    } else {
+        $_SESSION['error'] = "Name cannot be empty.";
+    }
+}
+
 
 renderHeaderNoNav("My Profile - Noguchi Library");
 ?>
@@ -133,7 +154,7 @@ renderHeaderNoNav("My Profile - Noguchi Library");
             <i class="fas fa-info-circle" style="color: #3b82f6; font-size: 1.25rem; margin-top: 0.125rem;"></i>
             <div>
                 <h3 style="margin: 0 0 0.35rem 0; color: #1e3a8a; font-weight: 800;">Reservation Policy Notice</h3>
-                <p style="margin: 0; color: #1e40af; font-size: 0.97 rem; line-height: 1.5;">Please be informed that once you reserve a book, it will be held for <strong>3 days</strong>. If you do not physically visit the Noguchi Library within this period, your reservation will be automatically removed.</p>
+                <p style="margin: 0; color: #1e40af; font-size: 0.97rem; line-height: 1.5;">Please be informed that once you reserve a book, it will be held for <strong>3 days</strong>. If you do not physically visit the Noguchi Library within this period, your reservation will be automatically removed.</p>
             </div>
         </div>
 
@@ -141,9 +162,25 @@ renderHeaderNoNav("My Profile - Noguchi Library");
             <aside>
                 <div class="profile-card">
                     <div class="avatar-large"><?php echo strtoupper(substr($u['full_name'], 0, 1)); ?></div>
-                    <h2 style="margin: 0; font-size: 1.5rem; color: #1e293b;"><?php echo htmlspecialchars($u['full_name']); ?></h2>
-                    <p style="color: #64748b; margin: 0.5rem 0 1.5rem; font-weight: 500;"><?php echo htmlspecialchars($u['course'] ?: 'Not Specified'); ?></p>
+                    <div id="display-name-wrap">
+                        <h2 style="margin: 0; font-size: 1.5rem; color: #1e293b;"><?php echo htmlspecialchars($u['full_name']); ?></h2>
+                        <p style="color: #64748b; margin: 0.5rem 0 1rem; font-weight: 500;"><?php echo htmlspecialchars($u['course'] ?: 'Not Specified'); ?></p>
+                        <button onclick="toggleEditName()" style="background: none; border: none; color: #6366f1; font-size: 0.85rem; font-weight: 700; cursor: pointer; padding: 0; margin-bottom: 1.5rem; font-family: 'Outfit', sans-serif;"><i class="fas fa-edit"></i> Edit Name</button>
+                    </div>
+                    
+                    <div id="edit-name-wrap" style="display: none; margin-bottom: 1.5rem;">
+                        <form method="POST">
+                            <input type="text" name="full_name" value="<?php echo htmlspecialchars($u['full_name']); ?>" style="width: 100%; padding: 0.75rem; border: 1.5px solid #e2e8f0; border-radius: 12px; margin-bottom: 0.75rem; text-align: center; font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 600; color: #1e293b; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='#6366f1'">
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button type="submit" name="update_name" class="btn btn-primary" style="flex: 1; padding: 0.6rem; font-size: 0.85rem; font-family: 'Outfit', sans-serif;">Save</button>
+                                <button type="button" onclick="toggleEditName()" style="flex: 1; padding: 0.6rem; font-size: 0.85rem; border: 1px solid #e2e8f0; background: white; border-radius: 10px; cursor: pointer; font-family: 'Outfit', sans-serif; font-weight: 600; color: #64748b;">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+
+
                     <span class="status-pill" style="background: #eef2ff; color: #4f46e5;">Institutional <?php echo ucfirst($u['role_name']); ?></span>
+
                     
                     <div style="margin-top: 2.5rem; border-top: 1px solid #f1f5f9; padding-top: 2rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                         <div style="text-align: center;">
@@ -258,4 +295,19 @@ renderHeaderNoNav("My Profile - Noguchi Library");
     </main>
 </div>
 
+<script>
+function toggleEditName() {
+    const disp = document.getElementById('display-name-wrap');
+    const edit = document.getElementById('edit-name-wrap');
+    if (edit.style.display === 'none') {
+        edit.style.display = 'block';
+        disp.style.display = 'none';
+    } else {
+        edit.style.display = 'none';
+        disp.style.display = 'block';
+    }
+}
+</script>
+
 <?php renderFooter(); ?>
+

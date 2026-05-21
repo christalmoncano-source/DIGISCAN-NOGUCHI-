@@ -4,17 +4,21 @@
  */
 require_once '../includes/auth.php';
 require_once '../config/db.php';
+global $conn;
+
 checkAccess(['student', 'admin']);
 
 $id = isset($_GET['id']) ? (int)$_GET['id'] : null;
 
 function getBookMetadata($conn, $id) {
-    if (!$id) return null;
+    if (!$id || !$conn) return null;
     $st = $conn->prepare("SELECT * FROM books WHERE id = ?");
+    if (!$st) return null;
     $st->bind_param("i", $id);
     $st->execute();
     return $st->get_result()->fetch_assoc();
 }
+
 
 $b = getBookMetadata($conn, $id);
 if (!$b) {
@@ -24,11 +28,14 @@ if (!$b) {
 
 // Suggested Books Logic (Same Category)
 $suggested = [];
-$cat = $b['category'];
+$cat = $conn->real_escape_string($b['category']);
 $s_res = $conn->query("SELECT * FROM books WHERE category = '$cat' AND id != $id LIMIT 4");
-while($s = $s_res->fetch_assoc()) {
-    $suggested[] = $s;
+if ($s_res) {
+    while($s = $s_res->fetch_assoc()) {
+        $suggested[] = $s;
+    }
 }
+
 
 // Image Resolution
 $ci_raw = $b['cover_image'] ?? '';

@@ -2,6 +2,7 @@
 // student/autocomplete.php — Live search API
 require_once '../includes/auth.php';
 require_once '../config/db.php';
+global $conn;
 checkAccess(['student', 'admin']);
 
 header('Content-Type: application/json');
@@ -9,7 +10,7 @@ header('Content-Type: application/json');
 $q = trim($_GET['q'] ?? '');
 if (strlen($q) < 1) { echo json_encode([]); exit; }
 
-$like = '%' . $conn->real_escape_string($q) . '%';
+$like = '%' . $q . '%';
 $stmt = $conn->prepare(
     "SELECT id, title, author, category, cover_image, publication_date
      FROM books

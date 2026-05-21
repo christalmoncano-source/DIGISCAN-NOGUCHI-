@@ -123,14 +123,18 @@
 }
 
 .sb-main {
-    padding: 3rem;
+    padding: 2.5rem;
     background: #f8fafc;
+    min-height: 100vh;
 }
 
+
 .sb-container {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
+    width: 100%;
 }
+
 
 /* Form Styles */
 .grid-responsive {

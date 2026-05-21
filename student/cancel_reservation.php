@@ -2,13 +2,13 @@
 session_start();
 require_once '../includes/auth.php';
 require_once '../config/db.php';
+global $conn;
 checkAccess(['student', 'admin']);
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['reservation_id'])) {
     $reservation_id = (int)$_POST['reservation_id'];
     $user_id = $_SESSION['user_id'];
     
-    // Verify ownership and status
     $stmt = $conn->prepare("SELECT status, book_id FROM reservations WHERE id = ? AND user_id = ?");
     $stmt->bind_param("ii", $reservation_id, $user_id);
     $stmt->execute();

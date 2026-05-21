@@ -5,6 +5,8 @@
  */
 require_once '../config/db.php';
 require_once '../includes/notifications_helper.php';
+global $conn;
+
 
 // If running via CLI or authorized request
 try {
